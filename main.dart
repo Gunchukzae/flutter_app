@@ -87,35 +87,43 @@ class MyCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // CartModel을 구독하여 카트 아이템 가져오기
-    final cart = Provider.of<CartModel>(context);
-
     return Scaffold(
       appBar: AppBar(title: const Text('My Cart')),
       body: Column(
         children: <Widget>[
-          if (cart.items.isEmpty)
-            const Center(child: Text('Your cart is empty!')),
-          if (cart.items.isNotEmpty)
-            Expanded(
-              child: ListView.builder(
-                itemCount: cart.items.length,
-                itemBuilder: (context, index) {
-                  final item = cart.items[index];
-                  return ListTile(
-                    title: Text(item.name),
-                    subtitle: Text('\$${item.price}'),
-                  );
-                },
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Total Price: \$${cart.totalPrice}', style: Theme.of(context).textTheme.headlineLarge),
+          // 카트가 비어있는 경우
+          Consumer<CartModel>(
+            builder: (context, cart, child) {
+              if (cart.items.isEmpty) {
+                return const Center(child: Text('Your cart is empty!'));
+              }
+
+              return Expanded(
+                child: ListView.builder(
+                  itemCount: cart.items.length,
+                  itemBuilder: (context, index) {
+                    final item = cart.items[index];
+                    return ListTile(
+                      title: Text(item.name),
+                      subtitle: Text('\$${item.price}'),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          // 총 가격 표시
+          Consumer<CartModel>(
+            builder: (context, cart, child) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('Total Price: \$${cart.totalPrice}', style: Theme.of(context).textTheme.headlineMedium),
+              );
+            },
           ),
           ElevatedButton(
             onPressed: () {
-              cart.removeAll();  // 카트 비우기
+              Provider.of<CartModel>(context, listen: false).removeAll();
             },
             child: const Text('Clear Cart'),
           ),
